@@ -1,0 +1,23 @@
+{
+  "name": "webpack-webextension-runtime-plugin",
+  "version": "1.0.0",
+  "description": "webpack plugin that hooks jsonpScriptSrc for webextensions",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DimensionDev/webpack-webextension-runtime-plugin.git"
+  },
+  "keywords": [
+    "webextension",
+    "webpack"
+  ],
+  "author": "Mingye Wang <artoria200126@gmail.com>",
+  "license": "CC0-1.0",
+  "bugs": {
+    "url": "https://github.com/DimensionDev/webpack-webextension-runtime-plugin/issues"
+  },
+  "homepage": "https://github.com/DimensionDev/webpack-webextension-runtime-plugin#readme"
+}
