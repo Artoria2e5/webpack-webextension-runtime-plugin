@@ -1,6 +1,6 @@
 {
   "name": "webpack-webextension-runtime-plugin",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "webpack plugin that hooks jsonpScriptSrc for webextensions",
   "main": "index.js",
   "scripts": {

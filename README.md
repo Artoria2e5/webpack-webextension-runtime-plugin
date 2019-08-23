@@ -17,11 +17,11 @@ Simply do:
 
 ```JS
 config.optimization.runtimeChunk = 'single'
-config.plugins.push(new (require('webpack-webextension-runtime-plugin')) {
+config.plugins.push(new (require('webpack-webextension-runtime-plugin'))({
     globalObject: config.output.globalObject, // I cannot read the config!
     chunks: ['runtime'], // this is the default; adjust if not using "single"
     bareRuntime: true    // false if you are throwing entry points at us
-})
+}))
 ```
 
 When it's time to inject the scripts:
@@ -32,8 +32,7 @@ const runtimeScript = `
     const rt = document.createElement('script')
     rt.src = ${quoteRuntimeURL('js/runtime.js')}
     document.documentElement.appendChild(rt)
-    window.webpackSetPublicPath(${quoteRuntimeURL('/')})
-`
+    window.webpackSetPublicPath(${quoteRuntimeURL('/')})`
 browser.webNavigation.onCommitted.addListener(async arg => {
         browser.tabs
             .executeScript(arg.tabId, {

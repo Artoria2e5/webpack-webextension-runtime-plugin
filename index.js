@@ -10,7 +10,7 @@ class WebextensionRuntimePlugin {
   }
 
   _match(chunkName) {
-    for (let pat of chunks) {
+    for (let pat of this.chunks) {
       if (pat === chunkName) return true
       if (pat instanceof RegExp) return pat.test(chunkName)
       if (typeof pat === 'function') return pat(chunkName)
@@ -20,7 +20,7 @@ class WebextensionRuntimePlugin {
 
   _findLine(lines, needle, start, direction, limit) {
     for (let idx = start, total = 0;
-      start += direction, total += 1;
+      idx += direction, total += 1;
       total < limit)
       if (lines[idx] === needle)
         return idx
@@ -39,18 +39,18 @@ class WebextensionRuntimePlugin {
     // locale the last line of the modules definition
     // it helps to read from the last if it was "bare"
     // This relies on lib/web/JsonpMainTemplatePlugin.js to not change
-    let pos = _findLine(lines,
+    let pos = this._findLine(lines,
       '/************************************************************************/',
-      bareRuntime ? lines.length - 1 : 0,
-      bareRuntime ? -1 : 1,
+      this.bareRuntime ? lines.length - 1 : 0,
+      this.bareRuntime ? -1 : 1,
       500
     )
 
-    if (!_assert(pos, "found the thing in " + key)) return asset
-    if (!_assert(lines[pos - 1].endsWith(' })'), "big barrier line is after the last thing in " + key)) return asset
+    if (!this._assert(pos, "found the thing in " + key)) return asset
+    if (!this._assert(lines[pos - 1].endsWith(' })'), "big barrier line is after the last thing in " + key)) return asset
 
     // can't insert a new line; might fuck up the source map
-    lines[pos - 2] += `;${globalObject}["webpackSetPublicPath"] = (s) => __webpack_require__.p = s; /* WebextensionRuntimePlugin */`
+    lines[pos - 2] += `;${this.globalObject}["webpackSetPublicPath"] = (s) => __webpack_require__.p = s; /* WebextensionRuntimePlugin */`
 
     let res = lines.join('\n')
     return {
@@ -60,17 +60,19 @@ class WebextensionRuntimePlugin {
   }
 
   apply(compiler) {
-    compiler.emit.tapAsync(pluginName, (compilation, cb) => {
+    compiler.hooks.emit.tapAsync(pluginName, (compilation, cb) => {
       compilation.chunks
-        .filter((ch) => _match(ch.name))
+        .filter((ch) => this._match(ch.name))
         .map((ch) => ch.files)
         .flat(1)
         .forEach((as) => {
           let ass = compilation.assets[as]
-          compilation.assets[as] = _spikeAsset(as, ass)
+          compilation.assets[as] = this._spikeAsset(as, ass)
         })
 
       cb()
     });
   }
 }
+
+module.exports = WebextensionRuntimePlugin
