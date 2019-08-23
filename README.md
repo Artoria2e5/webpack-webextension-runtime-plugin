@@ -27,11 +27,12 @@ config.plugins.push(new (require('webpack-webextension-runtime-plugin')) {
 When it's time to inject the scripts:
 
 ```JS
+const quoteRuntimeURL = (s) => JSON.stringify(browser.runtime.getURL(s))
 const runtimeScript = `
     const rt = document.createElement('script')
-    rt.src = "${browser.runtime.getURL('js/runtime.js')}"
+    rt.src = ${quoteRuntimeURL('js/runtime.js')}
     document.documentElement.appendChild(rt)
-    window.webpackSetPublicPath("${browser.runtime.getURL('/')}")
+    window.webpackSetPublicPath(${quoteRuntimeURL('/')})
 `
 browser.webNavigation.onCommitted.addListener(async arg => {
         browser.tabs
