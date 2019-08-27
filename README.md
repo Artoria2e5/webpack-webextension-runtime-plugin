@@ -28,17 +28,30 @@ When it's time to inject the scripts:
 
 ```JS
 const quoteRuntimeURL = (s) => JSON.stringify(browser.runtime.getURL(s))
-const runtimeScript = `
-    const rt = document.createElement('script')
-    rt.src = ${quoteRuntimeURL('js/runtime.js')}
-    document.documentElement.appendChild(rt)
-    window.webpackSetPublicPath(${quoteRuntimeURL('/')})`
+    const contentScript = `{
+        const promisifyLoad = function (tag) {
+            return new Promise((res, _) => {
+                document.documentElement.appendChild(tag)
+                tag.onload = () => res() })}
+
+        const rt = document.createElement('script')
+        rt.src = ${quoteRuntimeURL('js/runtime.js')}
+        const pp = document.createElement('script')
+        pp.src = 'data:text/javascript;charset=utf-8,' +
+            encodeURIComponent('globalThis["webpackSetPublicPath"](${quoteRuntimeURL('/')})')
+        const is = document.createElement('script')
+        is.src = ${quoteRuntimeURL('js/injectedscript.js')}
+        
+        promisifyLoad(rt)
+            .then(_ => promisifyLoad(pp))
+            .then(_ => promisifyLoad(is))
+    }`
 browser.webNavigation.onCommitted.addListener(async arg => {
         browser.tabs
             .executeScript(arg.tabId, {
                 runAt: 'document_start',
                 frameId: arg.frameId,
-                code: runtimeScript
+                code: contentScript
             })
             .catch(IgnoreError(arg))
 })
